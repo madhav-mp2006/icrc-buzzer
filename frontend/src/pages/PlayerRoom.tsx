@@ -177,7 +177,7 @@ export default function PlayerRoom() {
         >
           {buzzerOpen && !buzzLocked && 'BUZZ IN!'}
           {buzzLocked && !lastResult && '…'}
-          {lastResult && iWon && '🏆 You won!'}
+          {lastResult && iWon && '🎙️ Your turn to speak!'}
           {lastResult && !iWon && lastResult.winner.username}
           {!buzzerOpen && !lastResult && room.status === 'LOBBY' && '🔒'}
           {!buzzerOpen && !lastResult && room.status === 'LIVE' && '🔒'}
