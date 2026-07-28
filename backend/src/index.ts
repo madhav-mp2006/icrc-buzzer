@@ -11,7 +11,7 @@ app.use(express.json());
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: '*',
+    origin: process.env.ALLOWED_ORIGIN || '*',
     methods: ['GET', 'POST']
   }
 });
