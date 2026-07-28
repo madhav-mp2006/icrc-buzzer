@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PlayerLanding from './pages/PlayerLanding';
 import AdminLanding from './pages/AdminLanding';

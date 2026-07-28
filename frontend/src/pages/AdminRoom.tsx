@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { socket } from '../socket';
 import type { RoomState, Player, Team, BuzzerResult, ActivityEntry } from '../types';

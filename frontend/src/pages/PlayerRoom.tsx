@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { socket } from '../socket';
-import type { RoomState, Team, BuzzerResult } from '../types';
+import type { RoomState, BuzzerResult } from '../types';
 import { playBuzzerSound } from '../utils/audio';
 
 export default function PlayerRoom() {
