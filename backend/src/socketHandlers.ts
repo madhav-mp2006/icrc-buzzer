@@ -30,6 +30,20 @@ export function setupSocketHandlers(io: Server) {
       }
     });
 
+    // ─── Admin: Rejoin ────────────────────────────────────────────────────────
+    socket.on('room:admin_rejoin', (data: { roomCode: string; adminUsername: string }, callback: (res: any) => void) => {
+      const room = getRoom(data.roomCode);
+      if (room) {
+        if (room.adminUsername === data.adminUsername) {
+          room.adminId = socket.id;
+        }
+        socket.join(data.roomCode);
+        callback(room);
+      } else {
+        callback({ error: 'Room not found' });
+      }
+    });
+
     // ─── Player: Join Room ────────────────────────────────────────────────────
     socket.on('room:join', (
       data: { roomCode: string; username: string; avatar?: string },

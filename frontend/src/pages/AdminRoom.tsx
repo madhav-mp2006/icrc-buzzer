@@ -77,7 +77,8 @@ export default function AdminRoom() {
   const [flashWin, setFlashWin] = useState(false);
 
   useEffect(() => {
-    socket.emit('room:get_state', roomCode, (response: any) => {
+    const adminUsername = sessionStorage.getItem('buzzin_adminUsername') || '';
+    socket.emit('room:admin_rejoin', { roomCode, adminUsername }, (response: any) => {
       if (!response.error) {
         setRoom(response);
         setBuzzerOpen(response.buzzerState === 'OPEN');
