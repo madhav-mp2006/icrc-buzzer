@@ -75,15 +75,46 @@ export default function AdminRoom() {
   const [buzzerResult, setBuzzerResult] = useState<BuzzerResult | null>(null);
   const [buzzerOpen, setBuzzerOpen] = useState(false);
   const [flashWin, setFlashWin] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const adminUsername = sessionStorage.getItem('buzzin_adminUsername') || '';
+    let isMounted = true;
+    let joined = false;
+
     socket.emit('room:admin_rejoin', { roomCode, adminUsername }, (response: any) => {
-      if (!response.error) {
+      if (!isMounted) return;
+      joined = true;
+      if (response && !response.error) {
         setRoom(response);
         setBuzzerOpen(response.buzzerState === 'OPEN');
+      } else {
+        setError(response?.error || 'Room not found');
       }
     });
+
+    // Fallback if backend doesn't know 'room:admin_rejoin'
+    setTimeout(() => {
+      if (!joined && isMounted) {
+        socket.emit('room:get_state', roomCode, (response: any) => {
+          if (!isMounted) return;
+          joined = true;
+          if (response && !response.error) {
+            setRoom(response);
+            setBuzzerOpen(response.buzzerState === 'OPEN');
+          } else {
+            setError(response?.error || 'Room not found');
+          }
+        });
+      }
+    }, 2000);
+
+    // Timeout fallback
+    setTimeout(() => {
+      if (!joined && isMounted) {
+        setError('Connection timeout. The server might be starting up or the room does not exist.');
+      }
+    }, 7000);
 
     socket.on('room:state', (state: RoomState) => {
       setRoom(state);
@@ -104,6 +135,7 @@ export default function AdminRoom() {
     });
 
     return () => {
+      isMounted = false;
       socket.off('room:state');
       socket.off('buzzer:opened');
       socket.off('buzzer:result');
@@ -117,10 +149,24 @@ export default function AdminRoom() {
     if (confirm('End the room for all players?')) socket.emit('room:end', { roomCode });
   };
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#0B0F19] flex flex-col items-center justify-center p-4">
+        <div className="text-6xl mb-4">⚠️</div>
+        <h2 className="text-white text-2xl font-bold mb-2">Oops!</h2>
+        <p className="text-[#9CA3AF] mb-6 text-center max-w-md">{error}</p>
+        <a href="/" className="px-6 py-3 rounded-xl bg-[#6C5CE7] text-white font-bold hover:bg-[#5a4cd6] transition-colors">
+          Go Back Home
+        </a>
+      </div>
+    );
+  }
+
   if (!room) {
     return (
-      <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
-        <div className="text-white text-xl animate-pulse">Loading room…</div>
+      <div className="min-h-screen bg-[#0B0F19] flex flex-col items-center justify-center">
+        <div className="w-12 h-12 border-4 border-[#6C5CE7] border-t-transparent rounded-full animate-spin mb-4" />
+        <div className="text-[#9CA3AF] text-lg font-medium animate-pulse">Loading room…</div>
       </div>
     );
   }
